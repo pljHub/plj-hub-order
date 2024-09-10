@@ -19,11 +19,6 @@ public enum OrderErrorCode implements ErrorCode {
     }
 
     @Override
-    public String getCode() {
-        return this.name();
-    }
-
-    @Override
     public String getMessage() {
         return message;
     }
