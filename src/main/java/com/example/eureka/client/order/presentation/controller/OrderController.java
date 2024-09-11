@@ -4,7 +4,7 @@ import com.example.eureka.client.order.application.dto.CreateOrderResponseDto;
 import com.example.eureka.client.order.application.dto.GetOrderResponseDto;
 import com.example.eureka.client.order.application.dto.OrderResponseDto;
 import com.example.eureka.client.order.application.service.OrderService;
-import com.example.eureka.client.order.global.dto.SuccessResponseDto;
+import com.example.eureka.client.order.global.dto.ResponseDto;
 import com.example.eureka.client.order.presentation.request.OrderRequest;
 import com.example.eureka.client.order.presentation.request.OrderSearchDto;
 import java.util.UUID;
@@ -36,15 +36,15 @@ public class OrderController {
         주문 생성
      */
     @PostMapping
-    public ResponseEntity<SuccessResponseDto<CreateOrderResponseDto>> createOrder(
+    public ResponseEntity<ResponseDto<CreateOrderResponseDto>> createOrder(
         @RequestBody OrderRequest request,
         @RequestHeader(value = "X-User-ID", required = false) Long userId,
         @RequestHeader(value = "X-Role", required = false) String role){
 
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(SuccessResponseDto.of(
-                HttpStatus.CREATED,
+            .body(ResponseDto.success(
+                HttpStatus.CREATED.name(),
                 orderService.createOrder(request, userId, role)
             ));
     }
@@ -53,15 +53,15 @@ public class OrderController {
         주문 수락
      */
     @PatchMapping("/{orderId}/accept")
-    public ResponseEntity<SuccessResponseDto<OrderResponseDto>> acceptOrder(
+    public ResponseEntity<ResponseDto<OrderResponseDto>> acceptOrder(
         @PathVariable UUID orderId,
         @RequestHeader(value = "X-User-ID", required = false) Long userId,
         @RequestHeader(value = "X-Role", required = false) String role
     ){
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(SuccessResponseDto.of(
-                HttpStatus.OK,
+            .body(ResponseDto.success(
+                HttpStatus.OK.name(),
                 orderService.acceptOrder(userId, orderId, role)
             ));
     }
@@ -70,15 +70,15 @@ public class OrderController {
         주문 거절
      */
     @PatchMapping("/{orderId}/reject")
-    public ResponseEntity<SuccessResponseDto<OrderResponseDto>> rejectOrder(
+    public ResponseEntity<ResponseDto<OrderResponseDto>> rejectOrder(
         @PathVariable UUID orderId,
         @RequestHeader(value = "X-User-ID", required = false) Long userId,
         @RequestHeader(value = "X-Role", required = false) String role
     ){
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(SuccessResponseDto.of(
-                HttpStatus.OK,
+            .body(ResponseDto.success(
+                HttpStatus.OK.name(),
                 orderService.rejectOrder(userId, orderId, role)
             ));
     }
@@ -87,15 +87,15 @@ public class OrderController {
         주문 처리 완료
      */
     @PatchMapping("/{orderId}/complete")
-    public ResponseEntity<SuccessResponseDto<OrderResponseDto>> completeOrder(
+    public ResponseEntity<ResponseDto<OrderResponseDto>> completeOrder(
         @PathVariable UUID orderId,
         @RequestHeader(value = "X-User-ID", required = false) Long userId,
         @RequestHeader(value = "X-Role", required = false) String role
     ){
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(SuccessResponseDto.of(
-                HttpStatus.OK,
+            .body(ResponseDto.success(
+                HttpStatus.OK.name(),
                 orderService.completeOrder(userId, orderId, role)
             ));
     }
@@ -105,15 +105,15 @@ public class OrderController {
         주문 취소
      */
     @DeleteMapping("/{orderId}/cancel")
-    public ResponseEntity<SuccessResponseDto<OrderResponseDto>> cancelOrder(
+    public ResponseEntity<ResponseDto<OrderResponseDto>> cancelOrder(
         @PathVariable("orderId") UUID id,
         @RequestHeader(value = "X-User-ID", required = false) Long userId,
         @RequestHeader(value = "X-Role", required = false) String role
     ){
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(SuccessResponseDto.of(
-                HttpStatus.OK,
+            .body(ResponseDto.success(
+                HttpStatus.OK.name(),
                 orderService.cancelOrder(userId, id, role)
             ));
     }
@@ -123,15 +123,15 @@ public class OrderController {
         주문 삭제(soft delete)
      */
     @DeleteMapping("/{orderId}/delete")
-    public ResponseEntity<SuccessResponseDto<OrderResponseDto>> deleteOrder(
+    public ResponseEntity<ResponseDto<OrderResponseDto>> deleteOrder(
         @PathVariable("orderId") UUID id,
         @RequestHeader(value = "X-User-ID", required = false) Long userId,
         @RequestHeader(value = "X-Role", required = false) String role
     ){
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(SuccessResponseDto.of(
-                HttpStatus.OK,
+            .body(ResponseDto.success(
+                HttpStatus.OK.name(),
                 orderService.deleteOrder(userId, id, role)
             ));
     }
@@ -140,15 +140,15 @@ public class OrderController {
         주문 단건 조회
      */
     @GetMapping("/{orderId}")
-    public ResponseEntity<SuccessResponseDto<GetOrderResponseDto>> getOrder(
+    public ResponseEntity<ResponseDto<GetOrderResponseDto>> getOrder(
         @PathVariable UUID orderId,
         @RequestHeader(value = "X-User-ID", required = false) Long userId,
         @RequestHeader(value = "X-Role", required = false) String role
     ){
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(SuccessResponseDto.of(
-                HttpStatus.OK,
+            .body(ResponseDto.success(
+                HttpStatus.OK.name(),
                 orderService.getOrder(userId, orderId, role)
             ));
     }
@@ -158,7 +158,7 @@ public class OrderController {
         /api/orders?page={int}&size={int}&sort={field},{direction}
      */
     @GetMapping
-    public ResponseEntity<SuccessResponseDto<Page<GetOrderResponseDto>>> getOrders(
+    public ResponseEntity<ResponseDto<Page<GetOrderResponseDto>>> getOrders(
         @RequestBody OrderSearchDto searchDto,
         @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Direction.ASC) Pageable pageable,
         @RequestHeader(value = "X-User-ID", required = false) Long userId,
@@ -166,8 +166,8 @@ public class OrderController {
     ){
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(SuccessResponseDto.of(
-                HttpStatus.OK,
+            .body(ResponseDto.success(
+                HttpStatus.OK.name(),
                 orderService.getOrders(searchDto,pageable, userId, role)
             ));
     }

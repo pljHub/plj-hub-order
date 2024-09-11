@@ -78,4 +78,8 @@ public class DeliveryRecord extends Auditing{
             .userId(request.getUserId())
             .build();
     }
+
+    public void allocateSequence(String routePath) {
+        this.sequence = routePath;
+    }
 }

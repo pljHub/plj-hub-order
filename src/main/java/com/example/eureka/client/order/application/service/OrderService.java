@@ -11,8 +11,12 @@ import com.example.eureka.client.order.domain.model.OrderStatus;
 import com.example.eureka.client.order.domain.model.ProductOrder;
 import com.example.eureka.client.order.domain.repository.DeliveryRepository;
 import com.example.eureka.client.order.domain.repository.OrderRepository;
+import com.example.eureka.client.order.global.dto.ResponseDto;
 import com.example.eureka.client.order.global.exception.order.OrderAccessDeniedException;
 import com.example.eureka.client.order.global.exception.order.OrderNotFoundException;
+import com.example.eureka.client.order.infrastructure.client.delivery.HubPathSequenceDTO;
+import com.example.eureka.client.order.infrastructure.client.product.ProductClient;
+import com.example.eureka.client.order.infrastructure.client.product.ProductResponseDto;
 import com.example.eureka.client.order.presentation.request.OrderRequest;
 import com.example.eureka.client.order.presentation.request.OrderSearchDto;
 import com.example.eureka.client.order.presentation.request.ProductDetails;
@@ -22,8 +26,10 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +41,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final DeliveryRepository deliveryRepository;
-//    private final ProductClient productClient;
+    private final ProductClient productClient;
 
     @Transactional
     public CreateOrderResponseDto createOrder(OrderRequest request, Long userId, String role) {
@@ -49,12 +55,14 @@ public class OrderService {
             UUID productId = entry.getKey();
             ProductDetails productDetails = entry.getValue();
 
-//            ProductResponseDto product = productClient.getProduct(productId);
-//            log.info("product_id = {}, product_stock = {}", product.getId(), product.getStock());
-//
-//            if (product.getStock() < productDetails.getQuantity()){
-//                throw new RuntimeException();
-//            }
+            ResponseEntity<ResponseDto<ProductResponseDto>> response = productClient.getProduct(productId);
+            ProductResponseDto product = response.getBody().getData();
+
+            log.info("product_id = {}, product_stock = {}", product.getId(), product.getStock());
+
+            if (product.getStock() < productDetails.getQuantity()){
+                throw new RuntimeException();
+            }
 
             ProductOrder productOrder = ProductOrder.createProductOrder(productId, productDetails);
             order.addProductOrder(productOrder);
@@ -72,12 +80,16 @@ public class OrderService {
             totalPrice += productDetails.getPrice() * productDetails.getQuantity();
         }
 
-//        for (Entry<UUID, ProductDetails> entry : request.getProductMap().entrySet()) {
-//            productClient.reduceProductStock(entry.getKey(), entry.getValue().getQuantity());
-//        }
+        for (Entry<UUID, ProductDetails> entry : request.getProductMap().entrySet()) {
+            productClient.reduceProductStock(entry.getKey(), entry.getValue().getQuantity());
+        }
 
         DeliveryRecord deliveryRecord = DeliveryRecord.createDeliveryRecord(request);
+        String routePath = getCombinedRoutePath(request.getStartHubId(), request.getDestHubId());
+        deliveryRecord.allocateSequence(routePath);
+
         Delivery delivery = Delivery.createDelivery(request);
+
 
         delivery.addDeliveryRecord(deliveryRecord);
         order.addDelivery(delivery);
@@ -86,6 +98,24 @@ public class OrderService {
         orderRepository.save(order);
 
         return new CreateOrderResponseDto(order.getId(), totalPrice, orderItemDtoList);
+    }
+
+    private String getCombinedRoutePath(UUID startHubId, UUID destHubId) {
+
+        ResponseEntity<ResponseDto<List<HubPathSequenceDTO>>> response = productClient.getHubPathSequence(startHubId, destHubId);
+
+        List<HubPathSequenceDTO> hubPathSequenceList = response.getBody().getData();
+
+        StringBuilder combinedRoutePath = new StringBuilder();
+
+        hubPathSequenceList.forEach(hubPathSequence -> {
+            if (combinedRoutePath.length() > 0){
+                combinedRoutePath.append(" -> ");
+            }
+            combinedRoutePath.append(hubPathSequence.getRoutePath());
+        });
+
+        return combinedRoutePath.toString();
     }
 
     @Transactional

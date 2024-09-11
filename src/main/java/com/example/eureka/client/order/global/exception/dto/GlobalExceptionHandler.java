@@ -1,6 +1,6 @@
 package com.example.eureka.client.order.global.exception.dto;
 
-import com.example.eureka.client.order.global.dto.ErrorResponseDto;
+import com.example.eureka.client.order.global.dto.ResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,7 @@ public class GlobalExceptionHandler {
     private static final String LOG_FORMAT = "Status: {}, Class: {}, Code: {}, Message: {}";
 
     @ExceptionHandler(CustomException.class)
-    public ResponseEntity<ErrorResponseDto> handleRuntimeException(CustomException e) {
+    public ResponseEntity<ResponseDto<String>> handleRuntimeException(CustomException e) {
         ErrorCode errorCode = e.getErrorCode();
         String message = errorCode.getMessage();
         HttpStatus status = errorCode.getStatus();
@@ -27,20 +27,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
             .status(status)
-            .body(ErrorResponseDto.of(
-                status,
-                new ErrorCode() {
-                    @Override
-                    public HttpStatus getStatus() {
-                        return status;
-                    }
-
-                    @Override
-                    public String getMessage() {
-                        return message;
-                    }
-                }
-            ));
+            .body(ResponseDto.error(message));
     }
 
 }

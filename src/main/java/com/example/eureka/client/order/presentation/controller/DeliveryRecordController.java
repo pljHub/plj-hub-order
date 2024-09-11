@@ -3,7 +3,7 @@ package com.example.eureka.client.order.presentation.controller;
 
 import com.example.eureka.client.order.application.dto.GetDeliveryRecordResponseDto;
 import com.example.eureka.client.order.application.service.DeliveryRecordService;
-import com.example.eureka.client.order.global.dto.SuccessResponseDto;
+import com.example.eureka.client.order.global.dto.ResponseDto;
 import com.example.eureka.client.order.presentation.request.DeliveryRecordSearchDto;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -31,15 +31,15 @@ public class DeliveryRecordController {
         배송 기록 단건 조회
      */
     @GetMapping("/{recordId}")
-    public ResponseEntity<SuccessResponseDto<GetDeliveryRecordResponseDto>> getDeliveryRecord(
+    public ResponseEntity<ResponseDto<GetDeliveryRecordResponseDto>> getDeliveryRecord(
         @PathVariable UUID recordId,
         @RequestHeader(value = "X-User-ID", required = false) Long userId,
         @RequestHeader(value = "X-Role", required = false) String role
     ){
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(SuccessResponseDto.of(
-                HttpStatus.OK,
+            .body(ResponseDto.success(
+                HttpStatus.OK.name(),
                 deliveryRecordService.getDeliveryRecord(userId, recordId, role)
             ));
     }
@@ -50,7 +50,7 @@ public class DeliveryRecordController {
         - start_hub_id, dest_hub_id, status
      */
     @GetMapping
-    public ResponseEntity<SuccessResponseDto<Page<GetDeliveryRecordResponseDto>>> getDeliveriesRecords(
+    public ResponseEntity<ResponseDto<Page<GetDeliveryRecordResponseDto>>> getDeliveriesRecords(
         @RequestBody DeliveryRecordSearchDto searchDto,
         @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Direction.ASC) Pageable pageable,
         @RequestHeader(value = "X-User-ID", required = false) Long userId,
@@ -58,8 +58,8 @@ public class DeliveryRecordController {
     ){
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(SuccessResponseDto.of(
-                HttpStatus.OK,
+            .body(ResponseDto.success(
+                HttpStatus.OK.name(),
                 deliveryRecordService.getDeliveriesRecords(searchDto, pageable, userId, role)
             ));
     }

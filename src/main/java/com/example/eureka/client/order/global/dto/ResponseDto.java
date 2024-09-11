@@ -1,17 +1,28 @@
 package com.example.eureka.client.order.global.dto;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
+@AllArgsConstructor
 @Getter
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class ResponseDto {
-    private final String success;      // 요청 성공 여부
-    private final HttpStatus status;    // HTTP 상태 코드
+public class ResponseDto<T> {
 
-    public static ResponseDto of(String success, HttpStatus status) {
-        return new ResponseDto(success, status);
+    private String status;
+    private String message;
+    private T data;
+
+    public static <T> ResponseDto <T> success(String meesage) {
+        return new ResponseDto<>("success", meesage, null);
+    }
+
+    public static <T> ResponseDto<T> success(String message, T data) {
+        return new ResponseDto<>("success", message, data);
+    }
+
+    public static <T> ResponseDto <T> error(String message) {
+        return new ResponseDto<>("error", message, null);
     }
 }
