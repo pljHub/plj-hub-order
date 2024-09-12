@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/deliveries/records")
 @RequiredArgsConstructor
-public class DeliveryRecordController {
+public class DeliveryRecordController implements DeliveryRecordControllerDocs{
 
     private final DeliveryRecordService deliveryRecordService;
 

@@ -30,10 +30,9 @@ ext {
 
 dependencies {
 
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'	//Swagger
 
 	implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
-//	implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
-//	implementation 'org.springframework.boot:spring-boot-starter-aop'
 
 	runtimeOnly 'org.postgresql:postgresql'
 
