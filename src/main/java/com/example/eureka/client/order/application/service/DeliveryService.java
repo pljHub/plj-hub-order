@@ -100,7 +100,7 @@ public class DeliveryService {
     }
 
     private boolean isMasterOrHubManager(String role) {
-        return "MASTER".equals(role) || "HUB_MANAGER".equals(role);
+        return "ADMIN".equals(role) || "HUB_MANAGER".equals(role);
     }
 
     public GetDeliveryResponseDto getDelivery(Long userId, UUID deliveryId, String role) {

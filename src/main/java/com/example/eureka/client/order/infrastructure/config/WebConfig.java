@@ -15,17 +15,17 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
-    private final LoginArgumentResolver loginArgumentResolver;
-    private final CustomPageableArgumentResolver pageableArgumentResolver;
+//    private final LoginArgumentResolver loginArgumentResolver;
+//    private final CustomPageableArgumentResolver pageableArgumentResolver;
 
     @Bean
     JPAQueryFactory jpaQueryFactory(EntityManager em){
         return new JPAQueryFactory(em);
     }
 
-    @Override
-    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(loginArgumentResolver);
-        resolvers.add(pageableArgumentResolver);
-    }
+//    @Override
+//    public void alddArgumentResovers(List<HandlerMethodArgumentResolver> resolvers) {
+//        resolvers.add(loginArgumentResolver);
+//        resolvers.add(pageableArgumentResolver);
+//    }
 }

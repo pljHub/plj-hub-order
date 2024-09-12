@@ -70,8 +70,8 @@ public class Delivery extends Auditing{
     @Column(name = "number", nullable = false)
     private String number;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "user_id")
+    private Long userId; // 주문 수락시에 배송 담당자 할당
 
     @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -86,7 +86,6 @@ public class Delivery extends Auditing{
             .address(request.getAddress())           // 요청에서 주소 가져오기
             .recipient(request.getRecipient())       // 요청에서 수령인 정보 가져오기
             .number(request.getNumber())             // 요청에서 연락처 정보 가져오기
-            .userId(request.getUserId())
             .build();
     }
 

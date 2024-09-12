@@ -120,7 +120,6 @@ public class DeliveryController {
             ));
     }
 
-
     /*
         배달 선택 조회(start_hub, dest_hub, address, status)
         /api/deliveries?page={int}&size={int}&sort={field},{direction}

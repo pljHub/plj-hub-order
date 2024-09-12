@@ -35,6 +35,7 @@ public class OrderController {
 
     /*
         주문 생성
+        userId : 업체 담당자
      */
     @PostMapping
     public ResponseEntity<ResponseDto<CreateOrderResponseDto>> createOrder(
@@ -51,7 +52,9 @@ public class OrderController {
     }
 
     /*
-        주문 수락
+        주문 수락 - 업체 담당자가 업체 배송 담당자를 Delivery 에 배정
+        userId : 업체 담당자
+        DTO userId : 업체 배송 담당자
      */
     @PatchMapping("/{orderId}/accept")
     public ResponseEntity<ResponseDto<OrderResponseDto>> acceptOrder(
@@ -85,7 +88,8 @@ public class OrderController {
     }
 
     /*
-        주문 처리 완료
+        주문 처리 완료 - 업체 배송 담당자가 출발 허브로 이동할 때
+        userId : 업체 배송 담당자
      */
     @PatchMapping("/{orderId}/complete")
     public ResponseEntity<ResponseDto<OrderResponseDto>> completeOrder(

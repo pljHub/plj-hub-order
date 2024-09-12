@@ -51,7 +51,6 @@ public class ProductOrder extends Auditing{
     @JoinColumn(name = "order_id")
     private Order order;
 
-
     public static ProductOrder createProductOrder(UUID productId, ProductDetails productDetails) {
         return ProductOrder.builder()
             .productId(productId)

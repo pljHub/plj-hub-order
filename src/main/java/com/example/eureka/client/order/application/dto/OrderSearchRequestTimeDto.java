@@ -10,8 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class OrderSearchRequestTimeDto {
     /*
-        "requestTime": "2023-09-12T10:15:30"
+        "requestTime 자정 -> 24, 오전 1시 ->1, 오후 1시 -> 13
      */
-
-    private LocalDateTime requestTime;
+    private Integer requestTime;
 }

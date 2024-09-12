@@ -19,7 +19,7 @@ public class OrderRequest {
      */
     private UUID supplyId;
     private UUID consumerId;
-    private Long userId;
+    private Long userId; // 업체 배송 담당자
     private Map<UUID, ProductDetails> productMap = new HashMap<>();
 
     /*

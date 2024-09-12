@@ -96,11 +96,6 @@ public class OrderService {
                 totalPrice += productDetails.getPrice() * productDetails.getQuantity();
             }
 
-//        for (Entry<UUID, ProductDetails> entry : request.getProductMap().entrySet()) {
-//            productClient.reduceProductStock(entry.getKey(),
-//                Math.toIntExact(entry.getValue().getQuantity()));
-//        }
-
             DeliveryRecord deliveryRecord = DeliveryRecord.createDeliveryRecord(request);
             String routePath = getCombinedRoutePath(request.getStartHubId(),
                 request.getDestHubId());
@@ -255,7 +250,6 @@ public class OrderService {
     }
 
     public Page<GetOrderResponseDto> getOrders(OrderSearchDto searchDto, Pageable pageable, Long userId, String role) {
-
         Order order = orderRepository.findById(searchDto.getOrderId())
             .filter(o -> o.getDeletedAt() == null)
             .orElseThrow(OrderNotFoundException::new);
@@ -266,19 +260,23 @@ public class OrderService {
                 throw new OrderAccessDeniedException();
             }
         }
-
         return orderRepository.searchOrders(searchDto, pageable, role, userId);
     }
 
+    public Page<GetOrderResponseDto> getOrdersByRequestTime(OrderSearchRequestTimeDto searchDto, Pageable pageable, Long userId, String role) {
+        if (!isMasterOrHubManager(role)) {
+            log.warn("유저의 권한 문제 인한 전체 주문 조회 요청 실패 loginUserId = {}", userId);
+            throw new OrderAccessDeniedException();
+        }
+
+        return orderRepository.searchOrdersByRequestTime(searchDto, pageable, role, userId);
+    }
+
     private boolean isMasterOrHubManager(String role) {
-        return "MASTER".equals(role) || "HUB_MANAGER".equals(role);
+        return "ADMIN".equals(role) || "HUB_MANAGER".equals(role);
     }
 
     private Order findOrderById(UUID orderId) {
         return orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
-    }
-
-    public Page<GetOrderResponseDto> getOrdersByRequestTime(OrderSearchRequestTimeDto searchDto, Pageable pageable, Long userId, String role) {
-        return null;
     }
 }
