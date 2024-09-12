@@ -3,6 +3,7 @@ package com.example.eureka.client.order.presentation.controller;
 import com.example.eureka.client.order.application.dto.CreateOrderResponseDto;
 import com.example.eureka.client.order.application.dto.GetOrderResponseDto;
 import com.example.eureka.client.order.application.dto.OrderResponseDto;
+import com.example.eureka.client.order.application.dto.OrderSearchRequestTimeDto;
 import com.example.eureka.client.order.application.service.OrderService;
 import com.example.eureka.client.order.global.dto.ResponseDto;
 import com.example.eureka.client.order.presentation.request.OrderRequest;
@@ -172,5 +173,22 @@ public class OrderController {
             ));
     }
 
-
+    /*
+        요청한 시간을 전날 시간으로 기준 잡고 현재시간 까지의 주문 목록을 반환하기
+        page, queryDsl
+     */
+    @GetMapping("/requestTime")
+    public ResponseEntity<ResponseDto<Page<GetOrderResponseDto>>> getOrdersByRequestTime(
+        @RequestBody OrderSearchRequestTimeDto searchDto,
+        @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Direction.ASC) Pageable pageable,
+        @RequestHeader(value = "X-User-ID", required = false) Long userId,
+        @RequestHeader(value = "X-Role", required = false) String role
+    ){
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(ResponseDto.success(
+                HttpStatus.OK.name(),
+                orderService.getOrdersByRequestTime(searchDto,pageable, userId, role)
+            ));
+    }
 }

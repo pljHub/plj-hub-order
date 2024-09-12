@@ -17,7 +17,7 @@ public class CustomRetryConfig {
     @Bean
     public RetryRegistry retryRegistry() {
         return RetryRegistry.of(RetryConfig.custom()
-            .maxAttempts(3)  // 최대 재시도 횟수
+            .maxAttempts(1)  // 최대 재시도 횟수
             .intervalFunction(IntervalFunction.ofExponentialRandomBackoff(Duration.ofMillis(3000), 2)) // 3,6,12 배수로 재시도 Ducration
             .retryExceptions(FeignException.FeignServerException.class)
             .retryOnException(

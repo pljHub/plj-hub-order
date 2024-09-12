@@ -12,31 +12,41 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(
     name = "HUB-SERVICE",
-//    configuration = FeignClientConfig.class,
+    configuration = FeignClientConfig.class,
     fallbackFactory = ProductFallbackFactory.class
 )
 @Primary
 public interface ProductClient {
 
-    @Retry(name = "productServiceRetry")
-    @CircuitBreaker(name = "productServiceCircuitBreaker")
-    @GetMapping("/api/products/{id}")
-    ResponseEntity<ResponseDto<ProductResponseDto>> getProduct(@PathVariable("id") UUID id);
+    /*
+        일치 : Http method, URL, @PathVariable("id")
+        불일치 : ResponseEntity 의 Body 값만 일치하면 된다. Method name
+     */
 
-    @Retry(name = "productServiceRetry")
-    @CircuitBreaker(name = "productServiceCircuitBreaker")
-    @GetMapping("/api/products/{id}/reduceStock")
-    ResponseEntity<ResponseDto<Void>> reduceProductStock(@PathVariable("id") UUID id, @RequestParam("stock") Long stock);
+//    @Retry(name = "productServiceRetry")
+//    @CircuitBreaker(name = "productServiceCircuitBreaker")
+    @GetMapping("/api/products/{productId}")
+    ResponseEntity<ResponseDto<ProductResponseDto>> getProduct(@PathVariable UUID productId);
 
-    @Retry(name = "productServiceRetry")
-    @CircuitBreaker(name = "productServiceCircuitBreaker")
+//    @Retry(name = "productServiceRetry")
+//    @CircuitBreaker(name = "productServiceCircuitBreaker")
+    @GetMapping("/api/products/{productId}/reduceStock")
+    ResponseEntity<ResponseDto<Void>> reduceProductStock(@PathVariable UUID productId, @RequestParam int quantity);
+
+//    @Retry(name = "productServiceRetry")
+//    @CircuitBreaker(name = "productServiceCircuitBreaker")
     @GetMapping("/api/hub-path/sequence")
     ResponseEntity<ResponseDto<List<HubPathSequenceDTO>>> getHubPathSequence(
         @RequestParam("startHubId") UUID startHubId,
         @RequestParam("destHubId") UUID destHubId
     );
+
+    @PutMapping("/api/products/{productId}/returnStock")
+    ResponseEntity<Void> returnProductStock(@PathVariable UUID productId, @RequestParam int quantity);
+
 }

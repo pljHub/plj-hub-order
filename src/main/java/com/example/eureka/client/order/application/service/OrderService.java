@@ -4,6 +4,7 @@ import com.example.eureka.client.order.application.dto.CreateOrderResponseDto;
 import com.example.eureka.client.order.application.dto.GetOrderResponseDto;
 import com.example.eureka.client.order.application.dto.OrderItemDto;
 import com.example.eureka.client.order.application.dto.OrderResponseDto;
+import com.example.eureka.client.order.application.dto.OrderSearchRequestTimeDto;
 import com.example.eureka.client.order.domain.model.Delivery;
 import com.example.eureka.client.order.domain.model.DeliveryRecord;
 import com.example.eureka.client.order.domain.model.Order;
@@ -50,52 +51,83 @@ public class OrderService {
 
         Long totalPrice = 0L;
         List<OrderItemDto> orderItemDtoList = new ArrayList<>();
+        /*
+            보상 트랜잭션을 적용한 방식:
+            - 상품 재고 감소가 성공하면 트랜잭션을 기록.
+            - 재고 감소 중 하나라도 실패하면 성공한 재고 감소 작업에 대해 보상 트랜잭션(재고 복구)을 실행.
+         */
+        List<UUID> successfulProducts = new ArrayList<>();
 
-        for (Entry<UUID, ProductDetails> entry : request.getProductMap().entrySet()) {
-            UUID productId = entry.getKey();
-            ProductDetails productDetails = entry.getValue();
+        try {
+            for (Entry<UUID, ProductDetails> entry : request.getProductMap().entrySet()) {
+                UUID productId = entry.getKey();
+                ProductDetails productDetails = entry.getValue();
 
-            ResponseEntity<ResponseDto<ProductResponseDto>> response = productClient.getProduct(productId);
-            ProductResponseDto product = response.getBody().getData();
+                ResponseEntity<ResponseDto<ProductResponseDto>> response = productClient.getProduct(
+                    productId);
+                ProductResponseDto product = response.getBody().getData();
 
-            log.info("product_id = {}, product_stock = {}", product.getId(), product.getStock());
+                log.info("product_id = {}, product_stock = {}", product.getProductId(),
+                    product.getStock());
 
-            if (product.getStock() < productDetails.getQuantity()){
-                throw new RuntimeException();
+                if (product.getStock() < productDetails.getQuantity()) {
+                    throw new RuntimeException();
+                }
+
+                // 재고 감소 처리
+                productClient.reduceProductStock(productId,
+                    Math.toIntExact(productDetails.getQuantity()));
+                successfulProducts.add(productId);
+
+                ProductOrder productOrder = ProductOrder.createProductOrder(productId,
+                    productDetails);
+                order.addProductOrder(productOrder);
+
+                OrderItemDto orderItemDto = new OrderItemDto(
+                    request.getSupplyId(),
+                    request.getConsumerId(),
+                    productId,
+                    productDetails.getPrice(),
+                    productDetails.getQuantity(),
+                    String.valueOf(OrderStatus.ORDER_RECEIVED)
+                );
+                orderItemDtoList.add(orderItemDto);
+
+                totalPrice += productDetails.getPrice() * productDetails.getQuantity();
             }
 
-            ProductOrder productOrder = ProductOrder.createProductOrder(productId, productDetails);
-            order.addProductOrder(productOrder);
+//        for (Entry<UUID, ProductDetails> entry : request.getProductMap().entrySet()) {
+//            productClient.reduceProductStock(entry.getKey(),
+//                Math.toIntExact(entry.getValue().getQuantity()));
+//        }
 
-            OrderItemDto orderItemDto = new OrderItemDto(
-                request.getSupplyId(),
-                request.getConsumerId(),
-                productId,
-                productDetails.getPrice(),
-                productDetails.getQuantity(),
-                String.valueOf(OrderStatus.ORDER_RECEIVED)
-            );
-            orderItemDtoList.add(orderItemDto);
+            DeliveryRecord deliveryRecord = DeliveryRecord.createDeliveryRecord(request);
+            String routePath = getCombinedRoutePath(request.getStartHubId(),
+                request.getDestHubId());
+            deliveryRecord.allocateSequence(routePath);
 
-            totalPrice += productDetails.getPrice() * productDetails.getQuantity();
+            Delivery delivery = Delivery.createDelivery(request);
+            delivery.addDeliveryRecord(deliveryRecord);
+
+            order.addDelivery(delivery);
+            order.updateTotalPrice(totalPrice);
+            orderRepository.save(order);
+
+        }catch (Exception e){
+            // 보상 트랜잭션 (재고 롤백 처리)
+            for (UUID productId : successfulProducts) {
+                ProductDetails productDetails = request.getProductMap().get(productId);
+
+                // 재고 복구 요청
+                try{
+                    productClient.returnProductStock(productId, Math.toIntExact(productDetails.getQuantity()));
+                    log.info("Successfully rolled back stock for product ID: " + productId);
+                }catch (Exception rollbackException){
+                    log.warn("Failed to rollback stock for product ID: " + productId, rollbackException);
+                }
+            }
+            throw new RuntimeException("주문 처리 중 오류 발생, 보상 트랜잭션 수행: " + e.getMessage());
         }
-
-        for (Entry<UUID, ProductDetails> entry : request.getProductMap().entrySet()) {
-            productClient.reduceProductStock(entry.getKey(), entry.getValue().getQuantity());
-        }
-
-        DeliveryRecord deliveryRecord = DeliveryRecord.createDeliveryRecord(request);
-        String routePath = getCombinedRoutePath(request.getStartHubId(), request.getDestHubId());
-        deliveryRecord.allocateSequence(routePath);
-
-        Delivery delivery = Delivery.createDelivery(request);
-
-
-        delivery.addDeliveryRecord(deliveryRecord);
-        order.addDelivery(delivery);
-
-        order.updateTotalPrice(totalPrice);
-        orderRepository.save(order);
 
         return new CreateOrderResponseDto(order.getId(), totalPrice, orderItemDtoList);
     }
@@ -244,5 +276,9 @@ public class OrderService {
 
     private Order findOrderById(UUID orderId) {
         return orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
+    }
+
+    public Page<GetOrderResponseDto> getOrdersByRequestTime(OrderSearchRequestTimeDto searchDto, Pageable pageable, Long userId, String role) {
+        return null;
     }
 }

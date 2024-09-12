@@ -14,17 +14,16 @@ import org.springframework.stereotype.Component;
 public class ProductFallback implements ProductClient{
 
     @Override
-    public ResponseEntity<ResponseDto<ProductResponseDto>> getProduct(UUID id) {
-        log.warn("Fallback triggered for reduceProductStock. Failed to reduce stock for product ID: " + id);
+    public ResponseEntity<ResponseDto<ProductResponseDto>> getProduct(UUID productId) {
+        log.warn("Fallback triggered for reduceProductStock. Failed to reduce stock for product ID: " + productId);
         return ResponseEntity
             .status(HttpStatus.BAD_GATEWAY)
-            .body(ResponseDto.success(
-                String.valueOf(new ProductResponseDto(id, "default", -1L, -1L))));
+            .body(ResponseDto.error("HUB-SERVICE NOT RETURNED"));
     }
 
     @Override
-    public ResponseEntity<ResponseDto<Void>> reduceProductStock(UUID id, Long stock) {
-        log.warn("Fallback triggered for getProduct. Could not retrieve product with ID: " + id);
+    public ResponseEntity<ResponseDto<Void>> reduceProductStock(UUID productId, int quantity) {
+        log.warn("Fallback triggered for getProduct. Could not retrieve product with ID: " + productId);
         return ResponseEntity
             .status(HttpStatus.BAD_GATEWAY)
             .body(ResponseDto.error("HUB-SERVICE NOT RETURNED"));
@@ -38,4 +37,12 @@ public class ProductFallback implements ProductClient{
             .status(HttpStatus.BAD_GATEWAY)
             .body(ResponseDto.error("HUB-SERVICE NOT RETURNED"));
     }
+
+    @Override
+    public ResponseEntity<Void> returnProductStock(UUID productId, int quantity) {
+        log.warn("Fallback triggered for returnProductStock. Failed to rollback stock with ID: " + productId);
+        return ResponseEntity.badRequest().build();
+    }
+
+
 }
