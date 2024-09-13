@@ -1,6 +1,8 @@
 package com.example.eureka.client.order.application.dto;
 
 import com.example.eureka.client.order.domain.model.OrderStatus;
+import com.example.eureka.client.order.presentation.request.OrderRequest;
+import com.example.eureka.client.order.presentation.request.ProductDetails;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -21,6 +23,15 @@ public class OrderItemDto {
     private Long quantity;
 
     @Builder.Default
-    private String orderStatus = String.valueOf(OrderStatus.ORDER_RECEIVED);
+    private String orderStatus = String.valueOf(OrderStatus.ORDER_CREATED);
 
+    public OrderItemDto(OrderRequest request, UUID productId, ProductDetails productDetails,
+        String status) {
+        this.supplyId = request.getSupplyId();
+        this.consumerId = request.getConsumerId();
+        this.productId = productId;
+        this.price = productDetails.getPrice();
+        this.quantity = productDetails.getQuantity();
+        this.orderStatus = status;
+    }
 }

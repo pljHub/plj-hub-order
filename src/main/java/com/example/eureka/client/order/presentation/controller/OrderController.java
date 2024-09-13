@@ -35,7 +35,8 @@ public class OrderController {
 
     /*
         주문 생성
-        userId : 업체 담당자
+        - 주문 업체의 COMPANY_MANAGER가 주문 생성
+        userID : CompanyManager
      */
     @PostMapping
     public ResponseEntity<ResponseDto<CreateOrderResponseDto>> createOrder(
@@ -52,9 +53,8 @@ public class OrderController {
     }
 
     /*
-        주문 수락 - 업체 담당자가 업체 배송 담당자를 Delivery 에 배정
-        userId : 업체 담당자
-        DTO userId : 업체 배송 담당자
+        주문 수락
+        userId : COMPANY MANAGER
      */
     @PatchMapping("/{orderId}/accept")
     public ResponseEntity<ResponseDto<OrderResponseDto>> acceptOrder(
@@ -69,60 +69,6 @@ public class OrderController {
                 orderService.acceptOrder(userId, orderId, role)
             ));
     }
-
-    /*
-        주문 거절
-     */
-    @PatchMapping("/{orderId}/reject")
-    public ResponseEntity<ResponseDto<OrderResponseDto>> rejectOrder(
-        @PathVariable UUID orderId,
-        @RequestHeader(value = "X-User-ID", required = false) Long userId,
-        @RequestHeader(value = "X-Role", required = false) String role
-    ){
-        return ResponseEntity
-            .status(HttpStatus.OK)
-            .body(ResponseDto.success(
-                HttpStatus.OK.name(),
-                orderService.rejectOrder(userId, orderId, role)
-            ));
-    }
-
-    /*
-        주문 처리 완료 - 업체 배송 담당자가 출발 허브로 이동할 때
-        userId : 업체 배송 담당자
-     */
-    @PatchMapping("/{orderId}/complete")
-    public ResponseEntity<ResponseDto<OrderResponseDto>> completeOrder(
-        @PathVariable UUID orderId,
-        @RequestHeader(value = "X-User-ID", required = false) Long userId,
-        @RequestHeader(value = "X-Role", required = false) String role
-    ){
-        return ResponseEntity
-            .status(HttpStatus.OK)
-            .body(ResponseDto.success(
-                HttpStatus.OK.name(),
-                orderService.completeOrder(userId, orderId, role)
-            ));
-    }
-
-
-    /*
-        주문 취소
-     */
-    @DeleteMapping("/{orderId}/cancel")
-    public ResponseEntity<ResponseDto<OrderResponseDto>> cancelOrder(
-        @PathVariable("orderId") UUID id,
-        @RequestHeader(value = "X-User-ID", required = false) Long userId,
-        @RequestHeader(value = "X-Role", required = false) String role
-    ){
-        return ResponseEntity
-            .status(HttpStatus.OK)
-            .body(ResponseDto.success(
-                HttpStatus.OK.name(),
-                orderService.cancelOrder(userId, id, role)
-            ));
-    }
-
 
     /*
         주문 삭제(soft delete)
@@ -181,18 +127,16 @@ public class OrderController {
         요청한 시간을 전날 시간으로 기준 잡고 현재시간 까지의 주문 목록을 반환하기
         page, queryDsl
      */
-    @GetMapping("/requestTime")
+    @GetMapping("/requestTime/internal")
     public ResponseEntity<ResponseDto<Page<GetOrderResponseDto>>> getOrdersByRequestTime(
         @RequestBody OrderSearchRequestTimeDto searchDto,
-        @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Direction.ASC) Pageable pageable,
-        @RequestHeader(value = "X-User-ID", required = false) Long userId,
-        @RequestHeader(value = "X-Role", required = false) String role
+        @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Direction.ASC) Pageable pageable
     ){
         return ResponseEntity
             .status(HttpStatus.OK)
             .body(ResponseDto.success(
                 HttpStatus.OK.name(),
-                orderService.getOrdersByRequestTime(searchDto,pageable, userId, role)
+                orderService.getOrdersByRequestTime(searchDto,pageable)
             ));
     }
 }

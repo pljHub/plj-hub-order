@@ -2,9 +2,6 @@ package com.example.eureka.client.order.infrastructure.client.product;
 
 import com.example.eureka.client.order.global.dto.ResponseDto;
 import com.example.eureka.client.order.infrastructure.client.config.FeignClientConfig;
-import com.example.eureka.client.order.infrastructure.client.delivery.HubPathSequenceDTO;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import io.github.resilience4j.retry.annotation.Retry;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -35,7 +32,7 @@ public interface ProductClient {
 
 //    @Retry(name = "productServiceRetry")
 //    @CircuitBreaker(name = "productServiceCircuitBreaker")
-    @GetMapping("/api/products/{productId}/reduceStock")
+    @PutMapping("/api/products/{productId}/reduceStock/internal")
     ResponseEntity<ResponseDto<Void>> reduceProductStock(@PathVariable UUID productId, @RequestParam int quantity);
 
 //    @Retry(name = "productServiceRetry")
@@ -46,7 +43,10 @@ public interface ProductClient {
         @RequestParam("destHubId") UUID destHubId
     );
 
-    @PutMapping("/api/products/{productId}/returnStock")
+    @PutMapping("/api/products/{productId}/returnStock/internal")
     ResponseEntity<Void> returnProductStock(@PathVariable UUID productId, @RequestParam int quantity);
+
+    @GetMapping("/api/companies/{companyId}")
+    ResponseEntity<ResponseDto<CompanyResponseDTO>> findCompanyById(@PathVariable UUID companyId);
 
 }

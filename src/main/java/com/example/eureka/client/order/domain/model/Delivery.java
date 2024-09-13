@@ -31,6 +31,7 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.SQLDelete;
 
+@Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -71,7 +72,17 @@ public class Delivery extends Auditing{
     private String number;
 
     @Column(name = "user_id")
-    private Long userId; // 주문 수락시에 배송 담당자 할당
+    private Long userId;
+
+    @Column(name = "company_to_hub_delivery_user_id")
+    private Long companyToHubDeliveryUserId;
+
+    @Column(name = "hub_delivery_user_id")
+    private Long hubDeliveryUserId;
+
+    @Column(name = "hub_to_company_delivery_user_id")
+    private Long hubToCompanyDeliveryUserId;
+
 
     @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -80,7 +91,7 @@ public class Delivery extends Auditing{
 
     public static Delivery createDelivery(OrderRequest request) {
         return Delivery.builder()
-            .status(DeliveryStatus.WAITING_AT_HUB) // 기본 배송 상태로 설정 (예: PENDING)
+            .status(DeliveryStatus.PENDING) // 기본 배송 상태로 설정 (예: PENDING)
             .startHubIds(request.getStartHubIds()) // 요청에서 시작 허브 ID 리스트 가져오기
             .destHubIds(request.getDestHubIds())   // 요청에서 목적지 허브 ID 리스트 가져오기
             .address(request.getAddress())           // 요청에서 주소 가져오기
@@ -108,17 +119,11 @@ public class Delivery extends Auditing{
         this.deliveryRecord.setStatus(DeliveryRecordStatus.IN_HUB_TRANSFER);
     }
 
-    public void arriveAtDestinationHub() {
-        this.status = DeliveryStatus.ARRIVED_AT_DESTINATION_HUB;
-        this.deliveryRecord.setStatus(DeliveryRecordStatus.ARRIVED_AT_DESTINATION_HUB);
-
-    }
-
     public void completeDelivery() {
         this.status = DeliveryStatus.DELIVERED_TO_RECIPIENT;
         this.deliveryRecord.setStatus(DeliveryRecordStatus.DELIVERED_TO_RECIPIENT);
 
-        this.deliveryRecord.setActualDuration(Duration.between(this.deliveryRecord.getCreatedAt(), this.deliveryRecord.getUpdatedAt()));
+        this.deliveryRecord.setActualDuration(Duration.between(this.deliveryRecord.getCreatedAt(), LocalDateTime.now()));
         /*
             실제 거리를 구하는 로직은 api 를 활용해야 할듯
          */
@@ -129,4 +134,38 @@ public class Delivery extends Auditing{
         this.deliveryRecord.setStatus(DeliveryRecordStatus.RETURNED);
 
     }
+
+    public void assignHubDeliveryAgent(Long hubDeliveryAgentId) {
+        this.userId = hubDeliveryAgentId;
+    }
+
+    public void assignCompanyDeliveryAgent(Long companyDeliveryAgentId) {
+        this.userId = companyDeliveryAgentId;
+    }
+
+    public void transitDelivery() {
+        this.status = DeliveryStatus.IN_TRANSIT_TO_HUB;
+        this.deliveryRecord.setStatus(DeliveryRecordStatus.IN_TRANSIT_TO_HUB);
+    }
+
+    public void arriveAtStartHub() {
+        this.status = DeliveryStatus.ARRIVED_AT_START_HUB;
+        this.deliveryRecord.setStatus(DeliveryRecordStatus.ARRIVED_AT_START_HUB);
+    }
+
+    public void transitBetweenHub() {
+        this.status = DeliveryStatus.IN_TRANSIT_BETWEEN_HUBS;
+        this.deliveryRecord.setStatus(DeliveryRecordStatus.IN_TRANSIT_BETWEEN_HUB);
+    }
+
+    public void arriveAtDestinationHub() {
+        this.status = DeliveryStatus.ARRIVED_AT_DESTINATION_HUB;
+        this.deliveryRecord.setStatus(DeliveryRecordStatus.ARRIVED_AT_DESTINATION_HUB);
+    }
+
+    public void dispatchToAddress() {
+        this.status = DeliveryStatus.OUT_FOR_DELIVERY;
+        this.deliveryRecord.setStatus(DeliveryRecordStatus.OUT_FOR_DELIVERY);
+    }
+
 }

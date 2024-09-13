@@ -9,6 +9,6 @@ import org.springframework.data.domain.Pageable;
 public interface OrderRepositoryCustom {
     Page<GetOrderResponseDto> searchOrders(OrderSearchDto searchDto, Pageable pageable, String role, Long userId);
 
-    Page<GetOrderResponseDto> searchOrdersByRequestTime(OrderSearchRequestTimeDto searchDto, Pageable pageable, String role, Long userId);
+    Page<GetOrderResponseDto> searchOrdersByRequestTime(OrderSearchRequestTimeDto searchDto, Pageable pageable);
 
 }

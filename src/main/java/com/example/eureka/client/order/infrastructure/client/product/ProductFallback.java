@@ -1,7 +1,6 @@
 package com.example.eureka.client.order.infrastructure.client.product;
 
 import com.example.eureka.client.order.global.dto.ResponseDto;
-import com.example.eureka.client.order.infrastructure.client.delivery.HubPathSequenceDTO;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +40,12 @@ public class ProductFallback implements ProductClient{
     @Override
     public ResponseEntity<Void> returnProductStock(UUID productId, int quantity) {
         log.warn("Fallback triggered for returnProductStock. Failed to rollback stock with ID: " + productId);
+        return ResponseEntity.badRequest().build();
+    }
+
+    @Override
+    public ResponseEntity<ResponseDto<CompanyResponseDTO>> findCompanyById(UUID companyId) {
+        log.warn("Fallback triggered for findCompanyById. Failed to find Company with ID: " + companyId);
         return ResponseEntity.badRequest().build();
     }
 

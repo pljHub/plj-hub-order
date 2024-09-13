@@ -61,9 +61,6 @@ public class DeliveryRecord extends Auditing{
     @Column(name = "actual_duration")
     private Duration actualDuration;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
-
     @Column(name = "status", nullable = false)
     @Enumerated(value = EnumType.STRING)
     private DeliveryRecordStatus status;
@@ -74,8 +71,7 @@ public class DeliveryRecord extends Auditing{
             .destHubId(request.getDestHubId())
             .estimatedDistance(request.getEstimatedDistance())
             .estimatedDuration(request.getEstimatedDuration())
-            .status(DeliveryRecordStatus.WAITING_AT_HUB)
-            .userId(request.getUserId())
+            .status(DeliveryRecordStatus.PENDING)
             .build();
     }
 

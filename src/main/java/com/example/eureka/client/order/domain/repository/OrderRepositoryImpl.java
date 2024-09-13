@@ -70,7 +70,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
 
     @Override
     public Page<GetOrderResponseDto> searchOrdersByRequestTime(OrderSearchRequestTimeDto searchDto,
-        Pageable pageable, String role, Long userId) {
+        Pageable pageable) {
 
         Integer requestTime = searchDto.getRequestTime();
 
@@ -98,7 +98,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
             );
 
         Page<Order> page = PageableExecutionUtils.getPage(orders,pageable, countQuery::fetchOne);
-        log.info("주문 조회 성공 (시간 범위 기준) userId: {}, requestTime: {}", userId, searchDto.getRequestTime());
+        log.info("주문 조회 성공 (시간 범위 기준) requestTime: {}",searchDto.getRequestTime());
 
         return page.map(GetOrderResponseDto::new);
     }

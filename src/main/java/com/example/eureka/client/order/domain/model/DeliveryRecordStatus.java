@@ -1,10 +1,16 @@
 package com.example.eureka.client.order.domain.model;
 
 public enum DeliveryRecordStatus {
+    PENDING,
+    IN_TRANSIT_TO_HUB,
+    ARRIVED_AT_START_HUB,
+    IN_TRANSIT_BETWEEN_HUB,
+    ARRIVED_AT_DESTINATION_HUB,
+    DELIVERED_TO_RECIPIENT,
+
     WAITING_AT_HUB,
     IN_HUB_TRANSFER,
-    ARRIVED_AT_DESTINATION_HUB,
     OUT_FOR_DELIVERY,
-    DELIVERED_TO_RECIPIENT,
+
     RETURNED
 }

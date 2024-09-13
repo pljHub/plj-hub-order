@@ -33,10 +33,8 @@ public class DeliveryRecordService {
             .orElseThrow(DeliveryRecordNotFoundException::new);
 
         if (!isMasterOrHubManager(role)) {
-            if (!record.getUserId().equals(userId)){
-                log.warn("유저의 권한 문제 인한 배달정보 조회 실패(배송 관리자는 user_id 로 판단) loginUserId = {}, recordId = {}", userId, recordId);
-                throw new DeliveryRecordAccessDeniedException();
-            }
+            log.warn("유저의 권한 문제 인한 배달정보 조회 실패(배송 관리자는 user_id 로 판단) loginUserId = {}, recordId = {}", userId, recordId);
+            throw new DeliveryRecordAccessDeniedException();
         }
 
         log.info("배달 정보 단건 조회 성공 userId: {}, recordId: {}", userId, recordId);
@@ -49,18 +47,11 @@ public class DeliveryRecordService {
             .orElseThrow(DeliveryRecordNotFoundException::new);
 
         if (!isMasterOrHubManager(role)) {
-            if (!record.getUserId().equals(userId)){
-                log.warn("유저의 권한 문제 인한 배달정보 조회 실패(배송 관리자는 user_id 로 판단) loginUserId = {}, recordId = {}", userId, searchDto.getRecordId());
-                throw new DeliveryRecordAccessDeniedException();
-            }
+            log.warn("유저의 권한 문제 인한 배달정보 조회 실패(배송 관리자는 user_id 로 판단) loginUserId = {}, recordId = {}", userId, searchDto.getRecordId());
+            throw new DeliveryRecordAccessDeniedException();
         }
 
         return deliveryRecordRepository.searchDeliveriesRecords(searchDto, pageable, role, userId);
-    }
-
-    private DeliveryRecord findDeliveryRecordById(UUID recordId) {
-        return deliveryRecordRepository.findById(recordId).orElseThrow(
-            DeliveryRecordNotFoundException::new);
     }
 
     private boolean isMasterOrHubManager(String role) {

@@ -3,7 +3,6 @@ package com.example.eureka.client.order.domain.model;
 
 import com.example.eureka.client.order.presentation.request.OrderRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Cache;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import javax.swing.TransferHandler;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,13 +46,13 @@ public class Order extends Auditing{
     private UUID id;
 
     @Column(name = "supplier_id", nullable = false)
-    private UUID supplierId; // company_id
+    private UUID supplierId; // 생산업체
 
     @Column(name = "consumer_id", nullable = false)
-    private UUID consumerId; // company_id
+    private UUID consumerId; // 수령업체
 
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private Long userId; // companyMangerId
 
     @Column(name = "status", nullable = false)
     @Enumerated(value = EnumType.STRING)
@@ -87,12 +87,12 @@ public class Order extends Auditing{
         }
     }
 
-    public static Order createOrder(OrderRequest request) {
+    public static Order createOrder(OrderRequest request, Long companyMangerId) {
         return Order.builder()
             .supplierId(request.getSupplyId())
             .consumerId(request.getConsumerId())
-            .status(OrderStatus.ORDER_RECEIVED)
-            .userId(request.getUserId())
+            .status(OrderStatus.ORDER_CREATED)
+            .userId(companyMangerId)
             .totalPrice(0L)
             .build();
     }
@@ -111,15 +111,15 @@ public class Order extends Auditing{
     }
 
     public void acceptOrder() {
-        this.status = OrderStatus.ORDER_PROCESSING;
-    }
-
-    public void rejectOrder() {
-        this.status = OrderStatus.ORDER_REJECTED;
+        this.status = OrderStatus.ORDER_ACCEPTED;
     }
 
     public void completeOrder() {
         this.status = OrderStatus.ORDER_COMPLETED;
+    }
+
+    public void rejectOrder() {
+        this.status = OrderStatus.ORDER_REJECTED;
     }
 
     public void cancelOrder() {
@@ -129,5 +129,9 @@ public class Order extends Auditing{
     public void processRefundFromDelivery() {
         this.delivery.processRefundDelivery();
         this.status = OrderStatus.ORDER_REFUND_FROM_DELIVERY;
+    }
+
+    public void transitOrder() {
+        this.status = OrderStatus.ORDER_IN_TRANSIT;
     }
 }

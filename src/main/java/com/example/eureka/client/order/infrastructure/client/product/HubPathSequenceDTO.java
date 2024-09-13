@@ -1,4 +1,4 @@
-package com.example.eureka.client.order.infrastructure.client.delivery;
+package com.example.eureka.client.order.infrastructure.client.product;
 
 import java.util.UUID;
 import lombok.Builder;

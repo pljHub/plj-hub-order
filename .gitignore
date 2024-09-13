@@ -39,3 +39,6 @@ out/
 #application.yml
 reference
 docker-compose.yml
+orderFlow.md
+data.sql
+*.sql

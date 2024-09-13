@@ -44,7 +44,6 @@ public class DeliveryRecordController implements DeliveryRecordControllerDocs{
             ));
     }
 
-
     /*
         배송 기록 선택 조회
         - start_hub_id, dest_hub_id, status
