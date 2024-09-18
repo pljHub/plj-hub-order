@@ -17,6 +17,7 @@ import com.example.eureka.client.order.global.exception.company.CompanyNotFoundE
 import com.example.eureka.client.order.global.exception.order.OrderAccessDeniedException;
 import com.example.eureka.client.order.global.exception.order.OrderNotFoundException;
 import com.example.eureka.client.order.global.util.PermissionUtil;
+import com.example.eureka.client.order.infrastructure.client.exception.CustomBusinessFeignException;
 import com.example.eureka.client.order.infrastructure.client.product.CompanyResponseDTO;
 import com.example.eureka.client.order.infrastructure.client.product.HubPathSequenceDTO;
 import com.example.eureka.client.order.infrastructure.client.product.ProductClient;
@@ -26,6 +27,8 @@ import com.example.eureka.client.order.infrastructure.client.user.UserClient;
 import com.example.eureka.client.order.presentation.request.OrderRequest;
 import com.example.eureka.client.order.presentation.request.OrderSearchDto;
 import com.example.eureka.client.order.presentation.request.ProductDetails;
+import feign.FeignException;
+import feign.Request;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -139,6 +142,15 @@ public class OrderService {
             for (ProductOrder productOrder : order.getProductOrderList()) {
                 UUID productId = productOrder.getProductId();
                 Long productOrderStock = productOrder.getQuantity();
+
+                // 재고 확인
+                ResponseEntity<ResponseDto<ProductResponseDto>> response = productClient.getProduct(productId);
+                ProductResponseDto productDto = response.getBody().getData();
+
+                // TODO : 내부 호출로 인한 에러는 인식되지 않는다.
+                if ((long)productDto.getStock() < productOrderStock){
+                    throw new CustomBusinessFeignException("재고 부족 개수: " + (productOrderStock - (long)productDto.getStock()));
+                }
 
                 // 재고 감소 처리
                 productClient.reduceProductStock(productId, Math.toIntExact(productOrderStock));

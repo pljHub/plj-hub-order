@@ -44,6 +44,10 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
             .selectFrom(order)
             .leftJoin(order.productOrderList, productOrder)
             .where(
+                // null 값 무시되지 않도록 하려며 and 연산자 필요
+//                supplyEq(searchDto.getSupplyId())
+//                    .and(consumerEq(searchDto.getConsumerId()))
+
                 supplyEq(searchDto.getSupplyId()),
                 consumerEq(searchDto.getConsumerId()),
                 statusEq(OrderStatus.valueOf(searchDto.getOrderStatus())),

@@ -27,13 +27,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.SQLDelete;
 
+@Setter // unit test
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder(access = AccessLevel.PRIVATE)
+//@Builder(access = AccessLevel.PRIVATE)
+@Builder // unit test
 @Entity
 @Table(name = "p_order")
 @SQLDelete(sql = "UPDATE p_order SET deleted_at = CURRENT_TIMESTAMP, is_deleted = true WHERE order_id = ?")

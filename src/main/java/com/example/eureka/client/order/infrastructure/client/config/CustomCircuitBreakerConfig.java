@@ -27,6 +27,8 @@ public class CustomCircuitBreakerConfig {
             .recordExceptions(FeignException.class, ConnectException.class)
             .build();
 
-        return CircuitBreakerRegistry.of(config);
+        CircuitBreakerRegistry registry = CircuitBreakerRegistry.of(config);
+        registry.circuitBreaker("productServiceCircuitBreaker");
+        return registry;
     }
 }

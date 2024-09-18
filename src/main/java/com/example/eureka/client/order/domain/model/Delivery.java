@@ -71,9 +71,6 @@ public class Delivery extends Auditing{
     @Column(name = "number", nullable = false)
     private String number;
 
-    @Column(name = "user_id")
-    private Long userId;
-
     @Column(name = "company_to_hub_delivery_user_id")
     private Long companyToHubDeliveryUserId;
 
@@ -114,11 +111,6 @@ public class Delivery extends Auditing{
         this.deliveryRecord = deliveryRecord;
     }
 
-    public void transferInHub() {
-        this.status = DeliveryStatus.IN_HUB_TRANSFER;
-        this.deliveryRecord.setStatus(DeliveryRecordStatus.IN_HUB_TRANSFER);
-    }
-
     public void completeDelivery() {
         this.status = DeliveryStatus.DELIVERED_TO_RECIPIENT;
         this.deliveryRecord.setStatus(DeliveryRecordStatus.DELIVERED_TO_RECIPIENT);
@@ -133,14 +125,6 @@ public class Delivery extends Auditing{
         this.status = DeliveryStatus.RETURNED;
         this.deliveryRecord.setStatus(DeliveryRecordStatus.RETURNED);
 
-    }
-
-    public void assignHubDeliveryAgent(Long hubDeliveryAgentId) {
-        this.userId = hubDeliveryAgentId;
-    }
-
-    public void assignCompanyDeliveryAgent(Long companyDeliveryAgentId) {
-        this.userId = companyDeliveryAgentId;
     }
 
     public void transitDelivery() {
