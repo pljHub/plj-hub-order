@@ -13,6 +13,7 @@ import com.example.eureka.client.order.global.exception.company.CompanyNotFoundE
 import com.example.eureka.client.order.global.exception.delivery.DeliveryAccessDeniedException;
 import com.example.eureka.client.order.global.exception.delivery.DeliveryNotFoundException;
 import com.example.eureka.client.order.global.exception.order.OrderNotFoundException;
+import com.example.eureka.client.order.global.util.PermissionUtil;
 import com.example.eureka.client.order.infrastructure.client.product.CompanyResponseDTO;
 import com.example.eureka.client.order.infrastructure.client.product.ProductClient;
 import com.example.eureka.client.order.infrastructure.client.user.GetUserResponseDto;
@@ -38,6 +39,7 @@ public class DeliveryService {
     private final OrderRepository orderRepository;
     private final UserClient userClient;
     private final ProductClient productClient;
+    private final PermissionUtil permissionUtil;
 
     // userId : hubManager
     @Transactional
@@ -50,12 +52,8 @@ public class DeliveryService {
 
         ResponseEntity<ResponseDto<CompanyResponseDTO>> getCompanyInternal = productClient.findCompanyById(order.getSupplierId());
                 CompanyResponseDTO companyData = getCompanyInternal.getBody().getData();
-        if(!isMasterOrHubManager(role)){
-            if (!userData.getHubId().equals(companyData.getHubId())) {
-                log.warn("주문의 공급업체와 CurrentUser 의 업체 ID 불일치로 주문 수락 요청 실패 loginUserId = {}", userId);
-                throw new CompanyNotFoundException();
-            }
-        }
+
+        permissionUtil.validateUserOrHubIdPermission(role, userData, companyData, userId);
 
         if (order.getStatus().equals(OrderStatus.ORDER_ACCEPTED) &&
             order.getDelivery().getCompanyToHubDeliveryUserId() == null){
@@ -73,12 +71,7 @@ public class DeliveryService {
         Delivery delivery = findDeliveryById(deliveryId);
         Order order = findOrderById(requestDto.getOrderId());
 
-        if(!isMasterOrHubManager(role)) {
-            if (!delivery.getCompanyToHubDeliveryUserId().equals(userId)) {
-                log.warn("업체 배송 담당자와 할당된 배달의 업체 배송 담당자와 ID 가 일치하지 않습니다. loginUserId = {}", userId);
-                throw new DeliveryNotFoundException();
-            }
-        }
+        permissionUtil.validateUserOrCompanyToHubDeliveryUserPermission(role, delivery, userId);
 
         order.transitOrder();
         delivery.transitDelivery();
@@ -90,12 +83,7 @@ public class DeliveryService {
     public DeliveryResponseDto arriveStartHub(UUID deliveryId, DeliveryRequestDto requestDto, Long userId, String role) {
         Delivery delivery = findDeliveryById(deliveryId);
 
-        if(!isMasterOrHubManager(role)) {
-            if (!delivery.getCompanyToHubDeliveryUserId().equals(userId)) {
-                log.warn("업체 배송 담당자와 할당된 배달의 업체 배송 담당자와 ID 가 일치하지 않습니다. loginUserId = {}", userId);
-                throw new DeliveryNotFoundException();
-            }
-        }
+        permissionUtil.validateUserOrCompanyToHubDeliveryUserPermission(role, delivery, userId);
 
         delivery.arriveAtStartHub();
         return new DeliveryResponseDto(deliveryId);
@@ -121,12 +109,7 @@ public class DeliveryService {
 
         Delivery delivery = findDeliveryById(deliveryId);
 
-        if(!isMasterOrHubManager(role)) {
-            if (!delivery.getHubDeliveryUserId().equals(userId)) {
-                log.warn("업체 배송 담당자와 할당된 배달의 업체 배송 담당자와 ID 가 일치하지 않습니다. loginUserId = {}", userId);
-                throw new DeliveryNotFoundException();
-            }
-        }
+        permissionUtil.validateUserOrHubDeliveryUserPermission(role, delivery, userId);
 
         delivery.transitBetweenHub();
         return new DeliveryResponseDto(deliveryId);
@@ -137,12 +120,7 @@ public class DeliveryService {
     public DeliveryResponseDto arriveDestHub(UUID deliveryId, DeliveryRequestDto requestDto, Long userId, String role) {
         Delivery delivery = findDeliveryById(deliveryId);
 
-        if(!isMasterOrHubManager(role)) {
-            if (!delivery.getHubDeliveryUserId().equals(userId)) {
-                log.warn("업체 배송 담당자와 할당된 배달의 업체 배송 담당자와 ID 가 일치하지 않습니다. loginUserId = {}", userId);
-                throw new DeliveryNotFoundException();
-            }
-        }
+        permissionUtil.validateUserOrHubDeliveryUserPermission(role, delivery, userId);
 
         delivery.arriveAtDestinationHub();
         return new DeliveryResponseDto(deliveryId);
@@ -168,12 +146,7 @@ public class DeliveryService {
 
         Delivery delivery = findDeliveryById(deliveryId);
 
-        if(!isMasterOrHubManager(role)) {
-            if (!delivery.getHubToCompanyDeliveryUserId().equals(userId)) {
-                log.warn("업체 배송 담당자와 할당된 배달의 업체 배송 담당자와 ID 가 일치하지 않습니다. loginUserId = {}", userId);
-                throw new DeliveryNotFoundException();
-            }
-        }
+        permissionUtil.validateUserOrHubToCompanyDeliveryUserPermission(role, delivery, userId);
 
         delivery.dispatchToAddress();
         return new DeliveryResponseDto(deliveryId);
@@ -185,12 +158,7 @@ public class DeliveryService {
         Delivery delivery = findDeliveryById(deliveryId);
         Order order = findOrderById(requestDto.getOrderId());
 
-        if(!isMasterOrHubManager(role)) {
-            if (!delivery.getHubToCompanyDeliveryUserId().equals(userId)) {
-                log.warn("업체 배송 담당자와 할당된 배달의 업체 배송 담당자와 ID 가 일치하지 않습니다. loginUserId = {}", userId);
-                throw new DeliveryNotFoundException();
-            }
-        }
+        permissionUtil.validateUserOrHubToCompanyDeliveryUserPermission(role, delivery, userId);
 
         order.completeOrder();
         delivery.completeDelivery();

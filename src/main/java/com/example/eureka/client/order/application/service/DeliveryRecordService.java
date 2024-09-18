@@ -10,6 +10,7 @@ import com.example.eureka.client.order.global.exception.delivery.DeliveryAccessD
 import com.example.eureka.client.order.global.exception.delivery.DeliveryNotFoundException;
 import com.example.eureka.client.order.global.exception.deliveryRecord.DeliveryRecordAccessDeniedException;
 import com.example.eureka.client.order.global.exception.deliveryRecord.DeliveryRecordNotFoundException;
+import com.example.eureka.client.order.global.util.PermissionUtil;
 import com.example.eureka.client.order.presentation.request.DeliveryRecordSearchDto;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -26,13 +27,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class DeliveryRecordService {
 
     private final DeliveryRecordRepository deliveryRecordRepository;
+    private final PermissionUtil permissionUtil;
 
     public GetDeliveryRecordResponseDto getDeliveryRecord(Long userId, UUID recordId, String role) {
         DeliveryRecord record = deliveryRecordRepository.findById(recordId)
             .filter(o -> o.getDeletedAt() == null)
             .orElseThrow(DeliveryRecordNotFoundException::new);
 
-        if (!isMasterOrHubManager(role)) {
+        if (!permissionUtil.isAdminOrHubManager(role)) {
             log.warn("유저의 권한 문제 인한 배달정보 조회 실패(배송 관리자는 user_id 로 판단) loginUserId = {}, recordId = {}", userId, recordId);
             throw new DeliveryRecordAccessDeniedException();
         }
@@ -46,15 +48,11 @@ public class DeliveryRecordService {
             .filter(o -> o.getDeletedAt() == null)
             .orElseThrow(DeliveryRecordNotFoundException::new);
 
-        if (!isMasterOrHubManager(role)) {
+        if (!permissionUtil.isAdminOrHubManager(role)) {
             log.warn("유저의 권한 문제 인한 배달정보 조회 실패(배송 관리자는 user_id 로 판단) loginUserId = {}, recordId = {}", userId, searchDto.getRecordId());
             throw new DeliveryRecordAccessDeniedException();
         }
 
         return deliveryRecordRepository.searchDeliveriesRecords(searchDto, pageable, role, userId);
-    }
-
-    private boolean isMasterOrHubManager(String role) {
-        return "ADMIN".equals(role) || "HUB_MANAGER".equals(role);
     }
 }

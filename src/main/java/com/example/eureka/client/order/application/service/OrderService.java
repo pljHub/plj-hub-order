@@ -14,9 +14,9 @@ import com.example.eureka.client.order.domain.repository.DeliveryRepository;
 import com.example.eureka.client.order.domain.repository.OrderRepository;
 import com.example.eureka.client.order.global.dto.ResponseDto;
 import com.example.eureka.client.order.global.exception.company.CompanyNotFoundException;
-import com.example.eureka.client.order.global.exception.dto.CustomException;
 import com.example.eureka.client.order.global.exception.order.OrderAccessDeniedException;
 import com.example.eureka.client.order.global.exception.order.OrderNotFoundException;
+import com.example.eureka.client.order.global.util.PermissionUtil;
 import com.example.eureka.client.order.infrastructure.client.product.CompanyResponseDTO;
 import com.example.eureka.client.order.infrastructure.client.product.HubPathSequenceDTO;
 import com.example.eureka.client.order.infrastructure.client.product.ProductClient;
@@ -26,7 +26,6 @@ import com.example.eureka.client.order.infrastructure.client.user.UserClient;
 import com.example.eureka.client.order.presentation.request.OrderRequest;
 import com.example.eureka.client.order.presentation.request.OrderSearchDto;
 import com.example.eureka.client.order.presentation.request.ProductDetails;
-import feign.FeignException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,6 +50,7 @@ public class OrderService {
     private final DeliveryRepository deliveryRepository;
     private final ProductClient productClient;
     private final UserClient userClient;
+    private final PermissionUtil permissionUtil;
 
     // 주문 생성 권한 관리 - 주문 받을 업체 Id와 상품 Id가 존재하는지 검증
     @Transactional
@@ -127,7 +127,7 @@ public class OrderService {
             userId);
         GetUserResponseDto userData = userInternal.getBody().getData();
 
-        if(!isMasterOrHubManager(role)) {
+        if(!permissionUtil.isAdminOrHubManager(role)) {
             if (!userData.getCompanyId().equals(order.getSupplierId())) {
                 log.warn("주문의 공급업체와 CurrentUser 의 업체 ID 불일치로 주문 수락 요청 실패 loginUserId = {}", userId);
                 throw new CompanyNotFoundException();
@@ -174,7 +174,7 @@ public class OrderService {
 
         Order order = findOrderById(orderId);
 
-        if (!isMasterOrHubManager(role)) {
+        if (!permissionUtil.isAdminOrHubManager(role)) {
             log.warn("유저의 권한 문제 인한 주문삭제 요청 실패 loginUserId = {}, orderID = {}", userId, orderId);
             throw new OrderAccessDeniedException();
         }
@@ -192,7 +192,7 @@ public class OrderService {
             .filter(o -> o.getDeletedAt() == null)
             .orElseThrow(OrderNotFoundException::new);
 
-        if (!isMasterOrHubManager(role)) {
+        if (!permissionUtil.isAdminOrHubManager(role)) {
             log.warn("유저의 권한 문제 인한 주문 조회 요청 실패 loginUserId = {}, orderID = {}", userId, orderId);
             throw new OrderAccessDeniedException();
         }
@@ -207,7 +207,7 @@ public class OrderService {
             .filter(o -> o.getDeletedAt() == null)
             .orElseThrow(OrderNotFoundException::new);
 
-        if (!isMasterOrHubManager(role)) {
+        if (!permissionUtil.isAdminOrHubManager(role)) {
             log.warn("유저의 권한 문제 인한 전체 주문 조회 요청 실패 loginUserId = {}, orderID = {}", userId, searchDto.getOrderId());
             throw new OrderAccessDeniedException();
         }
@@ -215,16 +215,8 @@ public class OrderService {
     }
 
     public Page<GetOrderResponseDto> getOrdersByRequestTime(OrderSearchRequestTimeDto searchDto, Pageable pageable) {
-//        if (!isMasterOrHubManager(role)) {
-//            log.warn("유저의 권한 문제 인한 전체 주문 조회 요청 실패 loginUserId = {}", userId);
-//            throw new OrderAccessDeniedException();
-//        }
 
         return orderRepository.searchOrdersByRequestTime(searchDto, pageable);
-    }
-
-    private boolean isMasterOrHubManager(String role) {
-        return "ADMIN".equals(role) || "HUB_MANAGER".equals(role);
     }
 
     private Order findOrderById(UUID orderId) {
