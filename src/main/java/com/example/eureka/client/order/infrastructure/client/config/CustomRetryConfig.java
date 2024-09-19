@@ -20,10 +20,12 @@ public class CustomRetryConfig {
         RetryConfig retryConfig = RetryConfig.custom()
             .maxAttempts(1)  // 최대 재시도 횟수
             .intervalFunction(IntervalFunction.ofExponentialRandomBackoff(Duration.ofMillis(3000), 2)) // 3,6,12 배수로 재시도 Ducration
-            .retryExceptions(FeignException.FeignServerException.class)
+            .retryExceptions(FeignException.FeignServerException.class, RetryableException.class)
             .retryOnException(
-                throwable -> !(throwable instanceof FeignException.FeignClientException)
-                    && !(throwable instanceof RetryableException))
+                throwable -> !(throwable instanceof FeignException.FeignClientException))
+//            .retryOnException(
+//                throwable -> !(throwable instanceof FeignException.FeignClientException)
+//                    && !(throwable instanceof RetryableException))
             .build();
 
         RetryRegistry registry = RetryRegistry.of(retryConfig);
