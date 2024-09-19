@@ -34,6 +34,10 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
 
     QProductOrder productOrder = QProductOrder.productOrder;
 
+    /*
+        null 값 이 무시되지 않고 and 조건이 필요하다면
+        ex) supplyEq(searchDto.getSupplyId()).and(consumerEq(searchDto.getConsumerId()))
+     */
     @Override
     public Page<GetOrderResponseDto> searchOrders(OrderSearchDto searchDto, Pageable pageable,
         String role, Long userId) {
@@ -44,10 +48,6 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
             .selectFrom(order)
             .leftJoin(order.productOrderList, productOrder)
             .where(
-                // null 값 무시되지 않도록 하려며 and 연산자 필요
-//                supplyEq(searchDto.getSupplyId())
-//                    .and(consumerEq(searchDto.getConsumerId()))
-
                 supplyEq(searchDto.getSupplyId()),
                 consumerEq(searchDto.getConsumerId()),
                 statusEq(OrderStatus.valueOf(searchDto.getOrderStatus())),

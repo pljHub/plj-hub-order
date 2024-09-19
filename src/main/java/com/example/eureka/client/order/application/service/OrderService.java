@@ -147,7 +147,7 @@ public class OrderService {
                 ResponseEntity<ResponseDto<ProductResponseDto>> response = productClient.getProduct(productId);
                 ProductResponseDto productDto = response.getBody().getData();
 
-                // TODO : 내부 호출로 인한 에러는 인식되지 않는다.
+                // TODO : 내부 호출로 인한 에러는 Retry, CircuitBreaker 인식되지 않는다. (테스트 용 코드)
                 if ((long)productDto.getStock() < productOrderStock){
                     throw new CustomBusinessFeignException("재고 부족 개수: " + (productOrderStock - (long)productDto.getStock()));
                 }
