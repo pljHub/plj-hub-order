@@ -95,7 +95,7 @@ public class Order extends Auditing{
             .supplierId(request.getSupplyId())
             .consumerId(request.getConsumerId())
             .status(OrderStatus.ORDER_CREATED)
-            .userId(companyMangerId)
+            .userId(companyMangerId) // 생산업체 ID
             .totalPrice(0L)
             .build();
     }
