@@ -35,7 +35,7 @@ public class OrderController {
 
     /*
         주문 생성
-        - 주문 업체의 COMPANY_MANAGER가 주문 생성
+        - 수령업체 COMPANY_MANAGER가 주문 생성(요청)
         userID : CompanyManager
      */
     @PostMapping
@@ -54,7 +54,7 @@ public class OrderController {
 
     /*
         주문 수락
-        userId : COMPANY MANAGER
+        userId : COMPANY MANAGER - 생산업체
      */
     @PatchMapping("/{orderId}/accept")
     public ResponseEntity<ResponseDto<OrderResponseDto>> acceptOrder(

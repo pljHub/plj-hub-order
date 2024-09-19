@@ -34,6 +34,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class DeliveryService {
+    // TODO : 허브에서 허브로 이동하는 과정의 로직이 빠져있음 뒤늦게.. 꺠달음
+    // TODO : 허브로 이동할 때마다 sequence 갱신을 위해서 HubClient 호출 필요, 현재 허브와 다음 목적지 허브의 ID 필요
+    // TODO : Delivery 에서 List 형식의 startHubId, destHubId 를 UUID 로 매번 갱신 후 DeliveryRecord 의 Sequence 를 갱신 필요
 
     private final DeliveryRepository deliveryRepository;
     private final OrderRepository orderRepository;
