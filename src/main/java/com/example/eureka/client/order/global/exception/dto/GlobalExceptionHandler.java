@@ -1,6 +1,7 @@
 package com.example.eureka.client.order.global.exception.dto;
 
 import com.example.eureka.client.order.global.dto.ResponseDto;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +36,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ResponseDto<String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
 
-        ObjectError first = e.getBindingResult().getAllErrors().stream().findFirst().get();
-        String message = first.getDefaultMessage();
+        Optional<ObjectError> first = e.getBindingResult().getAllErrors().stream().findFirst();
+        String message = first.isPresent() ? first.get().getDefaultMessage() : "Validation error occurred";
 
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
