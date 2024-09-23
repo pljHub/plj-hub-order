@@ -52,6 +52,10 @@ dependencies {
 //	implementation 'io.github.openfeign:feign-micrometer'
 //	implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
 
+	// prometheus
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+
+	// actuator
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
