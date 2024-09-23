@@ -3,6 +3,7 @@ package com.example.eureka.client.order.presentation.controller;
 import com.example.eureka.client.order.application.dto.DeliveryResponseDto;
 import com.example.eureka.client.order.application.dto.GetDeliveryResponseDto;
 import com.example.eureka.client.order.application.service.DeliveryService;
+import com.example.eureka.client.order.application.service.DeliveryServiceImpl;
 import com.example.eureka.client.order.global.dto.ResponseDto;
 import com.example.eureka.client.order.presentation.request.DeliveryRequestDto;
 import com.example.eureka.client.order.presentation.request.DeliverySearchDto;
@@ -29,9 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class DeliveryController {
 
     private final DeliveryService deliveryService;
-
     /*
-        배달 생성 - OrderService
+        배달 생성 - OrderServiceImpl
         - Hub Manager 가 CompanyToHubDeliveryUser 배정
      */
     @PutMapping("/{deliveryId}/create")

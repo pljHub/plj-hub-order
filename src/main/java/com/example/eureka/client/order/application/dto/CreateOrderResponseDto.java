@@ -13,4 +13,6 @@ public class CreateOrderResponseDto {
     private UUID orderId;
     private Long totalPrice;
     private List<OrderItemDto> orderItemList;
+
+    private UUID deliveryId;
 }

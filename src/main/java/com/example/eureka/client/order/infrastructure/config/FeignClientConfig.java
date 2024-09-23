@@ -1,4 +1,4 @@
-package com.example.eureka.client.order.infrastructure.client.config;
+package com.example.eureka.client.order.infrastructure.config;
 
 import static feign.FeignException.errorStatus;
 import static java.lang.String.format;

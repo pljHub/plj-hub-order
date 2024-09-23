@@ -1,7 +1,7 @@
 package com.example.eureka.client.order.infrastructure.client.user;
 
 import com.example.eureka.client.order.global.dto.ResponseDto;
-import com.example.eureka.client.order.infrastructure.client.config.FeignClientConfig;
+import com.example.eureka.client.order.infrastructure.config.FeignClientConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.ResponseEntity;

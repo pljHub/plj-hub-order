@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class DeliveryRecordController implements DeliveryRecordControllerDocs{
 
     private final DeliveryRecordService deliveryRecordService;
-
     /*
         배송 기록 단건 조회
      */
@@ -65,14 +64,14 @@ public class DeliveryRecordController implements DeliveryRecordControllerDocs{
 
     /*
        배송 실제 경로 및 시간 갱신(배송지에 도착시)
-       - DeliveryRecordStatus 값이 DELIVERED_TO_RECIPIENT 다음과 같은때 DeliveryService 계층에서 진행
+       - DeliveryRecordStatus 값이 DELIVERED_TO_RECIPIENT 다음과 같은때 DeliveryServiceImpl 계층에서 진행
         - 예상 거리 및 시간 : request 에 입력
         - 실제 시간 : 배송지에 도착후에 updated_at - created_at 을 갱신
         - 실제 거리 : start, dest 실제 주소를 이용하여 거리를 계산
      */
 
     /*
-        배송 경로 기록 생성 - OrderService
+        배송 경로 기록 생성 - OrderServiceImpl
         - Order, Delivery, DeliveryRecord 생성 시점 동일
 
         배송 경로는 최초에 모든 경로가 생성되어야 합니다.
@@ -88,7 +87,7 @@ public class DeliveryRecordController implements DeliveryRecordControllerDocs{
 
     /*
         배송 기록 Status 값 갱신
-        - DeliveryService 계층에서 동시 진행
+        - DeliveryServiceImpl 계층에서 동시 진행
      */
 
     /*

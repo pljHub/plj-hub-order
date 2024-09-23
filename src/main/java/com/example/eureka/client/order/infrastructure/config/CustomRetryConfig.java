@@ -1,4 +1,4 @@
-package com.example.eureka.client.order.infrastructure.client.config;
+package com.example.eureka.client.order.infrastructure.config;
 
 import com.example.eureka.client.order.infrastructure.client.exception.CustomBusinessFeignException;
 import feign.FeignException;

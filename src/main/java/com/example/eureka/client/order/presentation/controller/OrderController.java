@@ -5,6 +5,7 @@ import com.example.eureka.client.order.application.dto.GetOrderResponseDto;
 import com.example.eureka.client.order.application.dto.OrderResponseDto;
 import com.example.eureka.client.order.application.dto.OrderSearchRequestTimeDto;
 import com.example.eureka.client.order.application.service.OrderService;
+import com.example.eureka.client.order.application.service.OrderServiceImpl;
 import com.example.eureka.client.order.global.dto.ResponseDto;
 import com.example.eureka.client.order.presentation.request.OrderRequest;
 import com.example.eureka.client.order.presentation.request.OrderSearchDto;
@@ -32,7 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
 
     private final OrderService orderService;
-
     /*
         주문 생성
         - 수령업체 COMPANY_MANAGER가 주문 생성(요청)

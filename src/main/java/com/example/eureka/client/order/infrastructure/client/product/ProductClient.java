@@ -1,7 +1,7 @@
 package com.example.eureka.client.order.infrastructure.client.product;
 
 import com.example.eureka.client.order.global.dto.ResponseDto;
-import com.example.eureka.client.order.infrastructure.client.config.FeignClientConfig;
+import com.example.eureka.client.order.infrastructure.config.FeignClientConfig;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.example.eureka.client.order.domain.repository;
+package com.example.eureka.client.order.infrastructure.repository;
 
 import static com.example.eureka.client.order.domain.model.QOrder.order;
 
@@ -8,6 +8,7 @@ import com.example.eureka.client.order.domain.model.Order;
 import com.example.eureka.client.order.domain.model.OrderStatus;
 import com.example.eureka.client.order.domain.model.QOrder;
 import com.example.eureka.client.order.domain.model.QProductOrder;
+import com.example.eureka.client.order.domain.repository.OrderRepositoryCustom;
 import com.example.eureka.client.order.global.exception.order.OrderAccessDeniedException;
 import com.example.eureka.client.order.presentation.request.OrderSearchDto;
 import com.querydsl.core.types.OrderSpecifier;
@@ -28,7 +29,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 
 @RequiredArgsConstructor
 @Slf4j
-public class OrderRepositoryImpl implements OrderRepositoryCustom{
+public class OrderRepositoryImpl implements OrderRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
